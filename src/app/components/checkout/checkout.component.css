@@ -1,0 +1,261 @@
+/* ============================================================ */
+/* CHECKOUT PAGE STYLES                                          */
+/* Form with validation feedback and order summary sidebar       */
+/* ============================================================ */
+
+/* ── Order Success Message ────────────────────────────────── */
+
+.order-success {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--success, #81b29a);
+  color: white;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.order-success h1 {
+  margin: 0 0 0.5rem;
+  color: var(--text-dark, #1d3557);
+}
+
+.order-success p {
+  color: var(--text-muted, #6c757d);
+}
+
+/* ── Checkout Layout ──────────────────────────────────────── */
+
+.checkout-page {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.checkout-form-section h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
+  color: var(--text-dark, #1d3557);
+}
+
+/* ── Form Styles ──────────────────────────────────────────── */
+
+fieldset {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-dark, #1d3557);
+  padding: 0 0.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dark, #1d3557);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  border-color: var(--primary, #2B3D5A);
+  box-shadow: 0 0 0 3px rgba(43, 61, 90, 0.1);
+}
+
+/* ── Validation Errors ────────────────────────────────────── */
+
+.error {
+  display: block;
+  color: var(--danger, #e63946);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* Highlight invalid touched fields with red border */
+.form-group input.ng-invalid.ng-touched {
+  border-color: var(--danger, #e63946);
+}
+
+.form-group input.ng-valid.ng-touched {
+  border-color: var(--success, #81b29a);
+}
+
+/* ── Payment Note ─────────────────────────────────────────── */
+
+.payment-note {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ffc107;
+}
+
+/* ── Submit Button ────────────────────────────────────────── */
+
+.btn-place-order {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary, #2B3D5A);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-place-order:hover:not(:disabled) {
+  background: var(--primary-light, #3d5a80);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(43, 61, 90, 0.3);
+}
+
+.btn-place-order:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+/* ── Order Summary Sidebar ────────────────────────────────── */
+
+.checkout-summary {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  position: sticky;
+  top: 80px;
+}
+
+.checkout-summary h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  color: var(--text-dark, #1d3557);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.summary-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.summary-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-item-name {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dark, #1d3557);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-item-qty {
+  font-size: 0.8rem;
+  color: var(--text-muted, #6c757d);
+}
+
+.summary-item-price {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-dark, #1d3557);
+  white-space: nowrap;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 0.75rem 0;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark, #1d3557);
+  padding: 0.5rem 0;
+}
+
+.back-to-cart {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--primary, #2B3D5A);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.back-to-cart:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .checkout-page {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .checkout-summary {
+    position: static;
+  }
+}

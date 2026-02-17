@@ -1,0 +1,102 @@
+<!-- ============================================================ -->
+<!-- PRODUCT DETAIL TEMPLATE                                      -->
+<!-- Shows full product info with quantity selector and            -->
+<!-- related products from the same category.                     -->
+<!-- ============================================================ -->
+
+@if (product) {
+  <!-- Back navigation link -->
+  <a routerLink="/products" class="back-link">&larr; Back to Products</a>
+
+  <div class="product-detail">
+    <!-- ── Product Image ─────────────────────────────────────── -->
+    <div class="detail-image">
+      <img [src]="product.image" [alt]="product.name" />
+    </div>
+
+    <!-- ── Product Info ──────────────────────────────────────── -->
+    <div class="detail-info">
+      <!-- Category badge -->
+      <span class="detail-category">{{ product.category }}</span>
+
+      <!-- Product name -->
+      <h1 class="detail-title">{{ product.name }}</h1>
+
+      <!-- Star rating -->
+      <div class="detail-rating">
+        @for (star of getStars(product.rating); track $index) {
+          <span class="star"
+                [class.full]="star === 'full'"
+                [class.half]="star === 'half'"
+                [class.empty]="star === 'empty'">
+            ★
+          </span>
+        }
+        <span class="rating-text">{{ product.rating }} / 5</span>
+      </div>
+
+      <!-- Price -->
+      <p class="detail-price">{{ product.price | currency:'USD' }}</p>
+
+      <!-- Stock status -->
+      <div class="stock-status">
+        @if (product.stock > 0) {
+          <span class="in-stock">✓ In Stock ({{ product.stock }} available)</span>
+        } @else {
+          <span class="out-of-stock">✗ Out of Stock</span>
+        }
+      </div>
+
+      <!-- Quantity Selector -->
+      @if (product.stock > 0) {
+        <div class="quantity-section">
+          <label class="quantity-label">Quantity:</label>
+          <div class="quantity-controls">
+            <button (click)="decrementQuantity()"
+                    [disabled]="quantity <= 1"
+                    class="qty-btn">
+              −
+            </button>
+            <span class="qty-value">{{ quantity }}</span>
+            <button (click)="incrementQuantity()"
+                    [disabled]="quantity >= product.stock"
+                    class="qty-btn">
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Add to Cart Button -->
+        <button (click)="addToCart()" class="btn-add-cart-lg">
+          Add to Cart — {{ product.price * quantity | currency:'USD' }}
+        </button>
+      }
+
+      <!-- Full description -->
+      <div class="detail-description">
+        <h3>Description</h3>
+        <p>{{ product.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Related Products ──────────────────────────────────── -->
+  @if (relatedProducts.length > 0) {
+    <section class="related-section">
+      <h2>Related Products</h2>
+      <div class="related-grid">
+        @for (related of relatedProducts; track related.id) {
+          <app-product-card
+            [product]="related"
+            (addedToCart)="onAddToCart($event)" />
+        }
+      </div>
+    </section>
+  }
+
+} @else {
+  <!-- Loading state -->
+  <div class="loading">
+    <p>Loading product...</p>
+  </div>
+}

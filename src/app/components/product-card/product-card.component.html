@@ -1,0 +1,78 @@
+<!-- ============================================================ -->
+<!-- PRODUCT CARD TEMPLATE                                        -->
+<!-- ANGULAR CONCEPTS USED:                                       -->
+<!--   [routerLink]   — Dynamic route with product ID             -->
+<!--   [src], [alt]   — Property binding (binds JS value to attr) -->
+<!--   (click)        — Event binding                             -->
+<!--   [disabled]     — Conditional attribute binding              -->
+<!--   @for           — Angular 17 loop with track expression     -->
+<!--   @if / @else    — Angular 17 conditional rendering          -->
+<!--   | currency     — Built-in pipe for formatting prices       -->
+<!--   | truncate     — Our custom pipe for shortening text       -->
+<!-- ============================================================ -->
+
+<div class="product-card">
+  <!-- Clickable image links to product detail page -->
+  <a [routerLink]="['/product', product.id]" class="card-image-link">
+    <img [src]="product.image" [alt]="product.name" class="card-image" loading="lazy" />
+    <!-- Out of stock overlay -->
+    @if (product.stock === 0) {
+      <div class="out-of-stock-overlay">Out of Stock</div>
+    }
+  </a>
+
+  <div class="card-body">
+    <!-- Category tag -->
+    <span class="card-category">{{ product.category }}</span>
+
+    <!-- Product name (links to detail page) -->
+    <h3 class="card-title">
+      <a [routerLink]="['/product', product.id]">{{ product.name }}</a>
+    </h3>
+
+    <!-- Description (truncated with our custom pipe) -->
+    <p class="card-description">{{ product.description | truncate:80 }}</p>
+
+    <!-- Star rating display -->
+    <div class="card-rating">
+      <!--
+        @for — Angular 17's loop syntax.
+        `track $index` tells Angular how to identify each item
+        for efficient DOM updates (like React's `key` prop).
+      -->
+      @for (star of getStars(product.rating); track $index) {
+        <span class="star"
+              [class.full]="star === 'full'"
+              [class.half]="star === 'half'"
+              [class.empty]="star === 'empty'">
+          ★
+        </span>
+      }
+      <span class="rating-text">({{ product.rating }})</span>
+    </div>
+
+    <!-- Price and Add to Cart button -->
+    <div class="card-footer">
+      <!--
+        The `currency` pipe formats numbers as currency.
+        'USD' specifies US Dollar formatting → "$79.99"
+      -->
+      <span class="card-price">{{ product.price | currency:'USD' }}</span>
+
+      <!--
+        [disabled] conditionally disables the button.
+        (click) calls our onAddToCart() method which emits to the parent.
+      -->
+      <button
+        (click)="onAddToCart()"
+        [disabled]="product.stock === 0"
+        class="btn-add-cart">
+        @if (product.stock === 0) {
+          Sold Out
+        } @else {
+          Add to Cart
+        }
+      </button>
+    </div>
+  </div>
+</div>

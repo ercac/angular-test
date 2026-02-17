@@ -1,0 +1,212 @@
+<!-- ============================================================ -->
+<!-- CHECKOUT PAGE TEMPLATE                                       -->
+<!-- ANGULAR CONCEPTS:                                            -->
+<!--   [formGroup]      — Binds the form element to our FormGroup -->
+<!--   formControlName  — Binds an input to a specific FormControl-->
+<!--   (ngSubmit)       — Form submission event (prevents default)-->
+<!--   .touched         — Has the user clicked into this field?   -->
+<!--   .errors          — Object with validation error details    -->
+<!--   [disabled]       — Disable button when form is invalid     -->
+<!-- ============================================================ -->
+
+<!-- Order Success Message -->
+@if (orderPlaced) {
+  <div class="order-success">
+    <div class="success-icon">✓</div>
+    <h1>Order Placed Successfully!</h1>
+    <p>Thank you for your purchase. Redirecting to home page...</p>
+  </div>
+} @else {
+  <!-- Checkout Form -->
+  <div class="checkout-page">
+    <div class="checkout-form-section">
+      <h1>Checkout</h1>
+
+      <!--
+        [formGroup] binds this <form> to our checkoutForm FormGroup.
+        (ngSubmit) calls onSubmit() when the form is submitted.
+        Unlike (submit), ngSubmit also prevents the default browser
+        form submission (page reload).
+      -->
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+
+        <!-- ── Personal Information ──────────────────────────── -->
+        <fieldset>
+          <legend>Personal Information</legend>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <!--
+                formControlName connects this input to the 'firstName'
+                FormControl defined in our TypeScript class.
+              -->
+              <input id="firstName" formControlName="firstName" type="text" placeholder="John" />
+              <!--
+                Show error messages only when:
+                1. The field has been touched (user clicked on it)
+                2. AND the field has errors
+                This prevents showing errors before the user interacts.
+              -->
+              @if (f['firstName'].touched && f['firstName'].errors) {
+                <span class="error">
+                  @if (f['firstName'].errors['required']) { First name is required. }
+                  @if (f['firstName'].errors['minlength']) { Minimum 2 characters. }
+                </span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" formControlName="lastName" type="text" placeholder="Doe" />
+              @if (f['lastName'].touched && f['lastName'].errors) {
+                <span class="error">
+                  @if (f['lastName'].errors['required']) { Last name is required. }
+                  @if (f['lastName'].errors['minlength']) { Minimum 2 characters. }
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input id="email" formControlName="email" type="email" placeholder="john@example.com" />
+            @if (f['email'].touched && f['email'].errors) {
+              <span class="error">
+                @if (f['email'].errors['required']) { Email is required. }
+                @if (f['email'].errors['email']) { Please enter a valid email. }
+              </span>
+            }
+          </div>
+        </fieldset>
+
+        <!-- ── Shipping Address ──────────────────────────────── -->
+        <fieldset>
+          <legend>Shipping Address</legend>
+
+          <div class="form-group">
+            <label for="address">Street Address</label>
+            <input id="address" formControlName="address" type="text" placeholder="123 Main St" />
+            @if (f['address'].touched && f['address'].errors) {
+              <span class="error">Address is required.</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input id="city" formControlName="city" type="text" placeholder="New York" />
+              @if (f['city'].touched && f['city'].errors) {
+                <span class="error">City is required.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="state">State</label>
+              <input id="state" formControlName="state" type="text" placeholder="NY" />
+              @if (f['state'].touched && f['state'].errors) {
+                <span class="error">State is required.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="zipCode">ZIP Code</label>
+              <input id="zipCode" formControlName="zipCode" type="text" placeholder="10001" />
+              @if (f['zipCode'].touched && f['zipCode'].errors) {
+                <span class="error">
+                  @if (f['zipCode'].errors['required']) { ZIP code is required. }
+                  @if (f['zipCode'].errors['pattern']) { Must be 5 digits. }
+                </span>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- ── Payment Details (Demo) ────────────────────────── -->
+        <fieldset>
+          <legend>Payment Details</legend>
+          <p class="payment-note">
+            This is a demo. No real payment will be processed.
+          </p>
+
+          <div class="form-group">
+            <label for="cardName">Name on Card</label>
+            <input id="cardName" formControlName="cardName" type="text" placeholder="John Doe" />
+            @if (f['cardName'].touched && f['cardName'].errors) {
+              <span class="error">Name on card is required.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="cardNumber">Card Number</label>
+            <input id="cardNumber" formControlName="cardNumber" type="text" placeholder="1234567890123456" />
+            @if (f['cardNumber'].touched && f['cardNumber'].errors) {
+              <span class="error">
+                @if (f['cardNumber'].errors['required']) { Card number is required. }
+                @if (f['cardNumber'].errors['pattern']) { Must be 16 digits. }
+              </span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiry">Expiry Date</label>
+              <input id="expiry" formControlName="expiry" type="text" placeholder="MM/YY" />
+              @if (f['expiry'].touched && f['expiry'].errors) {
+                <span class="error">
+                  @if (f['expiry'].errors['required']) { Required. }
+                  @if (f['expiry'].errors['pattern']) { Use MM/YY format. }
+                </span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="cvv">CVV</label>
+              <input id="cvv" formControlName="cvv" type="text" placeholder="123" />
+              @if (f['cvv'].touched && f['cvv'].errors) {
+                <span class="error">
+                  @if (f['cvv'].errors['required']) { Required. }
+                  @if (f['cvv'].errors['pattern']) { Must be 3 digits. }
+                </span>
+              }
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Submit Button -->
+        <button type="submit"
+                [disabled]="checkoutForm.invalid"
+                class="btn-place-order">
+          Place Order ({{ cartService.totalPrice() | currency:'USD' }})
+        </button>
+      </form>
+    </div>
+
+    <!-- ── Order Summary Sidebar ────────────────────────────── -->
+    <aside class="checkout-summary">
+      <h2>Order Summary</h2>
+
+      @for (item of cartService.items(); track item.product.id) {
+        <div class="summary-item">
+          <img [src]="item.product.image" [alt]="item.product.name" class="summary-img" />
+          <div class="summary-item-info">
+            <span class="summary-item-name">{{ item.product.name }}</span>
+            <span class="summary-item-qty">x{{ item.quantity }}</span>
+          </div>
+          <span class="summary-item-price">
+            {{ item.product.price * item.quantity | currency:'USD' }}
+          </span>
+        </div>
+      }
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-total">
+        <span>Total</span>
+        <span>{{ cartService.totalPrice() | currency:'USD' }}</span>
+      </div>
+
+      <a routerLink="/cart" class="back-to-cart">&larr; Edit Cart</a>
+    </aside>
+  </div>
+}

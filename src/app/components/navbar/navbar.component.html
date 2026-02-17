@@ -1,0 +1,92 @@
+<!-- ============================================================ -->
+<!-- NAVBAR TEMPLATE                                              -->
+<!-- ANGULAR CONCEPTS USED:                                       -->
+<!--   routerLink        — Navigate without page reload           -->
+<!--   routerLinkActive  — Add CSS class to active route link     -->
+<!--   [(ngModel)]       — Two-way data binding for search input  -->
+<!--   (submit)          — Event binding for form submission      -->
+<!--   @if               — Angular 17 control flow (conditional)  -->
+<!--   cartService.itemCount() — Reading a Signal in a template   -->
+<!-- ============================================================ -->
+
+<nav class="navbar">
+  <!-- Brand / Logo -->
+  <div class="nav-brand">
+    <a routerLink="/" class="brand-link">
+      <span class="brand-icon">🛍️</span>
+      <span class="brand-name">ShopNG</span>
+    </a>
+  </div>
+
+  <!-- Hamburger button for mobile -->
+  <button class="hamburger" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+
+  <!-- Navigation links + actions (collapsible on mobile) -->
+  <div class="nav-content" [class.open]="mobileMenuOpen">
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+      <!--
+        routerLink: Where to navigate
+        routerLinkActive: CSS class added when this route is active
+        [routerLinkActiveOptions]="{exact: true}": Only match exact URL
+          (needed for '/' so it doesn't match '/products' too)
+      -->
+      <a routerLink="/"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         (click)="mobileMenuOpen = false">
+        Home
+      </a>
+      <a routerLink="/products"
+         routerLinkActive="active"
+         (click)="mobileMenuOpen = false">
+        Products
+      </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="nav-search">
+      <!--
+        (submit) prevents default form submission (no page reload)
+        and calls our onSearch() method instead.
+        [(ngModel)] keeps searchTerm in sync with the input value.
+      -->
+      <form (submit)="onSearch()" class="search-form">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Search products..."
+          class="search-input"
+          aria-label="Search products"
+        />
+        <button type="submit" class="search-btn" aria-label="Search">
+          🔍
+        </button>
+      </form>
+    </div>
+
+    <!-- Cart Link with Badge -->
+    <div class="nav-actions">
+      <a routerLink="/cart"
+         routerLinkActive="active"
+         class="cart-link"
+         (click)="mobileMenuOpen = false">
+        🛒 Cart
+        <!--
+          @if — Angular 17's new control flow syntax.
+          Only shows the badge when there are items in the cart.
+          cartService.itemCount() reads the computed signal.
+        -->
+        @if (cartService.itemCount() > 0) {
+          <span class="cart-badge">{{ cartService.itemCount() }}</span>
+        }
+      </a>
+    </div>
+  </div>
+</nav>

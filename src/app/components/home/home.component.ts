@@ -1,0 +1,67 @@
+// ============================================================
+// HOME COMPONENT — Landing page with hero, featured, categories
+// ============================================================
+// ANGULAR CONCEPTS:
+//
+// 1. [queryParams] — Pass query parameters via routerLink.
+//    <a [routerLink]="['/products']" [queryParams]="{ category: 'Books' }">
+//    This navigates to /products?category=Books
+//
+// 2. Component composition — Reusing <app-product-card> again!
+//    The same component works on the product list page, the
+//    product detail page, AND the home page. Maximum reuse!
+// ============================================================
+
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { ProductService } from '../../services/product.service';
+import { CartService } from '../../services/cart.service';
+import { Product } from '../../product.model';
+import { ProductCardComponent } from '../product-card/product-card.component';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  imports: [RouterLink, ProductCardComponent],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
+})
+export class HomeComponent implements OnInit {
+
+  featuredProducts: Product[] = [];
+  categories: string[] = [];
+
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService
+  ) {}
+
+  ngOnInit(): void {
+    // Fetch featured (top-rated) products for the home page
+    this.productService.getFeaturedProducts().subscribe(products => {
+      this.featuredProducts = products;
+    });
+
+    // Get all category names
+    this.categories = this.productService.getCategories();
+  }
+
+  /** Handle add to cart from featured product cards */
+  onAddToCart(product: Product): void {
+    this.cartService.addToCart(product);
+  }
+
+  /**
+   * Returns an emoji for each category.
+   * This is just for fun visual display on the home page!
+   */
+  getCategoryEmoji(category: string): string {
+    const emojiMap: { [key: string]: string } = {
+      'Electronics': '🔌',
+      'Clothing': '👕',
+      'Books': '📚',
+      'Home': '🏠'
+    };
+    return emojiMap[category] || '🛍️';
+  }
+}

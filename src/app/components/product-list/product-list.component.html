@@ -1,0 +1,93 @@
+<!-- ============================================================ -->
+<!-- PRODUCT LIST TEMPLATE                                        -->
+<!-- ANGULAR CONCEPTS USED:                                       -->
+<!--   @for with track   — Loop over arrays efficiently           -->
+<!--   @empty            — Fallback when the array is empty       -->
+<!--   [(ngModel)]       — Two-way binding for search input       -->
+<!--   (input)           — Event binding on every keystroke        -->
+<!--   (click)           — Event binding for category clicks       -->
+<!--   [class.active]    — Conditional CSS class                   -->
+<!--   [product]         — Pass data DOWN to child (@Input)        -->
+<!--   (addedToCart)     — Listen for events FROM child (@Output)  -->
+<!-- ============================================================ -->
+
+<div class="product-list-page">
+
+  <!-- ── Sidebar: Category Filter ──────────────────────────── -->
+  <aside class="sidebar">
+    <h3 class="sidebar-title">Categories</h3>
+    <ul class="category-list">
+      <!--
+        [class.active] adds the 'active' CSS class when the
+        condition is true. Here, it highlights "All Products"
+        when no category is selected.
+      -->
+      <li (click)="filterByCategory('')"
+          [class.active]="selectedCategory === ''">
+        All Products
+      </li>
+
+      <!--
+        @for — Loops over the categories array.
+        `track cat` uses the category string itself as the
+        unique identifier (since category names are unique).
+      -->
+      @for (cat of categories; track cat) {
+        <li (click)="filterByCategory(cat)"
+            [class.active]="selectedCategory === cat">
+          {{ cat }}
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <!-- ── Main Content: Search + Product Grid ───────────────── -->
+  <section class="product-grid-section">
+
+    <!-- Search bar -->
+    <div class="list-header">
+      <div class="search-bar">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+          placeholder="Search products..."
+          class="search-input"
+        />
+      </div>
+      <p class="results-count">
+        {{ filteredProducts.length }} product{{ filteredProducts.length !== 1 ? 's' : '' }} found
+      </p>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid">
+      <!--
+        @for — Loop over filtered products.
+        `track product.id` uses the product's unique ID.
+        This helps Angular efficiently update the DOM when
+        the list changes (add/remove/reorder).
+
+        [product]="product" → passes data to the child component's @Input
+        (addedToCart)="onAddToCart($event)" → listens for the child's @Output
+          $event is the Product object emitted by the child.
+      -->
+      <!--
+        @for — Loop over filtered products.
+        @empty — Fallback shown when the array is empty.
+        NOTE: @empty must come right after the @for closing brace!
+        Syntax: @for (...) { ... } @empty { ... }
+      -->
+      @for (product of filteredProducts; track product.id) {
+        <app-product-card
+          [product]="product"
+          (addedToCart)="onAddToCart($event)" />
+      } @empty {
+        <div class="no-results">
+          <h3>No products found</h3>
+          <p>Try a different search term or category.</p>
+        </div>
+      }
+    </div>
+  </section>
+</div>

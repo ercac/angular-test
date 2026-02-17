@@ -1,0 +1,55 @@
+<!-- ============================================================ -->
+<!-- HOME PAGE TEMPLATE                                           -->
+<!-- Three sections: Hero banner, Featured Products, Categories   -->
+<!-- ============================================================ -->
+
+<!-- ── Hero Banner ───────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Discover Amazing Products</h1>
+    <p>Shop the latest trends at unbeatable prices. Quality products, fast shipping, and a seamless shopping experience.</p>
+    <a routerLink="/products" class="btn-hero">Shop Now</a>
+  </div>
+</section>
+
+<!-- ── Featured Products ─────────────────────────────────────── -->
+<section class="featured-section">
+  <div class="section-header">
+    <h2>Featured Products</h2>
+    <p>Our top-rated picks just for you</p>
+  </div>
+  <div class="featured-grid">
+    @for (product of featuredProducts; track product.id) {
+      <app-product-card
+        [product]="product"
+        (addedToCart)="onAddToCart($event)" />
+    }
+  </div>
+  <div class="section-cta">
+    <a routerLink="/products" class="btn-outline">View All Products</a>
+  </div>
+</section>
+
+<!-- ── Shop by Category ──────────────────────────────────────── -->
+<section class="categories-section">
+  <div class="section-header">
+    <h2>Shop by Category</h2>
+    <p>Find exactly what you're looking for</p>
+  </div>
+  <div class="category-grid">
+    <!--
+      [queryParams] passes query parameters alongside routerLink.
+      Clicking "Books" navigates to: /products?category=Books
+      The ProductListComponent reads this and filters accordingly.
+    -->
+    @for (cat of categories; track cat) {
+      <a [routerLink]="['/products']"
+         [queryParams]="{ category: cat }"
+         class="category-card">
+        <span class="category-emoji">{{ getCategoryEmoji(cat) }}</span>
+        <h3>{{ cat }}</h3>
+        <span class="category-arrow">&rarr;</span>
+      </a>
+    }
+  </div>
+</section>
