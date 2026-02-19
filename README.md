@@ -1,27 +1,374 @@
-# AngularTest
+# ShopNG — Full-Stack E-Commerce Platform
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+> **Angular 17 + Express.js + PostgreSQL**
+> A modern e-commerce application with role-based admin panel, JWT authentication, and reactive state management.
 
-## Development server
+---
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Weekly Progress
 
-## Code scaffolding
+| Week | Date | What Was Done |
+|------|------|---------------|
+| 1 | Feb 2025 | Project scaffolding, product browsing, cart system, checkout flow |
+| 2 | Feb 2025 | Admin panel (product CRUD, disable/enable), fake login system, local credentials |
+| 3 | | |
+| 4 | | |
+| 5 | | |
+| 6 | | |
+| 7 | | |
+| 8 | | |
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+---
 
-## Build
+## Quick Start
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+# Install dependencies
+npm install
 
-## Running unit tests
+# Start the dev server (frontend only — no backend needed)
+ng serve
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+# Open in browser
+http://localhost:4200
+```
 
-## Running end-to-end tests
+### Demo Login
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Credentials are stored locally in `src/app/credentials.local.ts` (git-ignored).
+Default accounts:
 
-## Further help
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@shopng.com | admin123 |
+| User | user@shopng.com | user123 |
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+---
+
+## Tech Stack
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| Frontend | Angular 17 (Standalone Components) | Modern component architecture, no NgModules |
+| State | Angular Signals | Simpler than NgRx for this scope, auto-tracking |
+| Forms | Reactive Forms + Template-Driven | Reactive for complex validation, template-driven for CRUD |
+| HTTP | HttpClient + Interceptor | Centralized auth token injection |
+| Routing | @angular/router + Functional Guards | Route protection with `authGuard` and `adminGuard` |
+| Styling | CSS3 + Custom Properties | Design system with variables, no external CSS framework |
+| Backend | Express.js | Lightweight REST API server |
+| Database | PostgreSQL | Relational data with transactions for order integrity |
+| Auth | JWT (jsonwebtoken) + bcryptjs | Stateless authentication, secure password hashing |
+
+---
+
+## Project Structure
+
+```
+src/app/
+|-- app.component.ts/html/css          Root shell (navbar + router-outlet)
+|-- app.routes.ts                      All route definitions
+|-- app.config.ts                      App-level providers (router, HTTP, interceptor)
+|-- product.model.ts                   TypeScript interfaces (Product, User, Order, etc.)
+|-- credentials.local.ts               Demo accounts (git-ignored)
+|
+|-- environments/
+|   |-- environment.ts                 API URL, production flag
+|
+|-- services/
+|   |-- auth.service.ts                Login, logout, session restore, role checks
+|   |-- product.service.ts             In-memory CRUD, storefront filtering, admin methods
+|   |-- cart.service.ts                Cart state with signals, quantity management
+|
+|-- guards/
+|   |-- auth.guard.ts                  Blocks unauthenticated users, redirects to /login
+|   |-- admin.guard.ts                 Blocks non-admin users, redirects to /
+|
+|-- interceptors/
+|   |-- auth.interceptor.ts            Attaches Bearer token to all HTTP requests
+|
+|-- pipes/
+|   |-- truncate.pipe.ts               Shortens text with configurable limit
+|
+|-- components/
+    |-- navbar/                        Sticky header, search, cart badge, admin link, auth buttons
+    |-- home/                          Hero banner, featured products, category grid
+    |-- product-list/                  Category sidebar, search, product grid
+    |-- product-card/                  Reusable card with image, rating, add-to-cart
+    |-- product-detail/                Full product view, quantity selector, related products
+    |-- cart/                          Cart items with quantity controls, order summary
+    |-- checkout/                      Multi-section form with validation
+    |-- login/                         Email/password form with error handling
+    |-- register/                      (Stub — not yet implemented)
+    |-- admin/                         Admin layout shell with sidebar navigation
+    |-- admin-dashboard/               (Stub — statistics overview planned)
+    |-- admin-products/                Product table with search, status toggle, delete
+    |-- admin-product-form/            Create/edit form with image preview, visibility toggle
+    |-- admin-orders/                  (Stub — order management planned)
+    |-- admin-users/                   (Stub — user management planned)
+
+backend/
+|-- server.js                          Express entry point, middleware stack
+|-- config/db.js                       PostgreSQL connection pool
+|-- middleware/auth.js                 JWT verification middleware
+|-- middleware/admin.js                Role-based access middleware
+|-- routes/auth.js                     POST /register, POST /login, GET /me
+|-- routes/products.js                 Full CRUD with search, pagination, categories
+|-- routes/orders.js                   Order creation (with DB transaction), status updates
+|-- routes/users.js                    User management, stats overview
+```
+
+---
+
+## Features
+
+### Customer-Facing
+
+- **Product browsing** — Grid layout with category filtering and keyword search
+- **Product detail** — Full description, star ratings, stock status, quantity selector, related products
+- **Shopping cart** — Add/remove items, adjust quantities, running total
+- **Checkout** — Validated form (personal info, shipping address, payment), order confirmation
+- **Authentication** — Login/register with JWT, persistent sessions via localStorage
+- **Responsive design** — Mobile hamburger menu, fluid grid, responsive tables
+
+### Admin Panel
+
+- **Product management** — Create, edit, delete products with full form validation
+- **Disable/enable** — Toggle product visibility on the storefront without deleting
+- **Search & filter** — Find products by name or category in the admin table
+- **Image preview** — See product image while editing the URL
+- **Role protection** — Admin routes guarded by `authGuard` + `adminGuard`; admin nav link hidden from regular users
+
+---
+
+## Architecture Concepts
+
+### Signals (State Management)
+
+Instead of NgRx or BehaviorSubject, the app uses Angular's built-in Signals for reactive state:
+
+```typescript
+// CartService — writable signal + computed derived state
+private cartItems = signal<CartItem[]>([]);
+readonly itemCount = computed(() =>
+  this.cartItems().reduce((sum, item) => sum + item.quantity, 0)
+);
+readonly totalPrice = computed(() =>
+  this.cartItems().reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+);
+```
+
+Templates read signals directly with no `async` pipe or manual subscriptions:
+
+```html
+<span class="badge">{{ cartService.itemCount() }}</span>
+<span class="total">{{ cartService.totalPrice() | currency }}</span>
+```
+
+### Functional Route Guards
+
+Angular 17 favors functions over classes for guards:
+
+```typescript
+export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  return authService.isAdmin() ? true : router.createUrlTree(['/']);
+};
+```
+
+### HTTP Interceptor
+
+Every request automatically gets the auth token:
+
+```typescript
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+  }
+  return next(req);
+};
+```
+
+### In-Memory Fake Data
+
+The `ProductService` runs entirely in-memory with 12 products so the app works without a backend. Storefront methods filter out disabled products; admin methods include everything:
+
+```typescript
+// Storefront — customers only see active products
+getAllProducts(): Observable<Product[]> {
+  return of(this.products.filter(p => !p.disabled));
+}
+
+// Admin — sees everything including disabled
+getAllProductsAdmin(): Observable<Product[]> {
+  return of([...this.products]);
+}
+```
+
+### Authentication Flow
+
+```
+Login form  -->  AuthService.login()
+                   |
+                   |--> Check credentials.local.ts (git-ignored)
+                   |      Match? Store "dev-fake-<email>" token, return user
+                   |
+                   |--> No match? POST /api/auth/login (real backend)
+                          Store JWT, return user
+                   |
+                   v
+                 currentUserSignal updates
+                   |
+                   |--> isLoggedIn() = true
+                   |--> isAdmin() = true/false
+                   |
+                   v
+                 Navbar reacts: shows Admin link, Logout button
+                 Guards react: allow/block route access
+```
+
+---
+
+## API Endpoints (Backend)
+
+### Auth
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| POST | /api/auth/register | No | Create account, returns JWT |
+| POST | /api/auth/login | No | Authenticate, returns JWT |
+| GET | /api/auth/me | Yes | Validate token, return user |
+
+### Products
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| GET | /api/products | No | List products (search, category, pagination) |
+| GET | /api/products/categories | No | List unique categories |
+| GET | /api/products/:id | No | Single product by ID |
+| POST | /api/products | Admin | Create product |
+| PUT | /api/products/:id | Admin | Update product |
+| DELETE | /api/products/:id | Admin | Delete product |
+
+### Orders
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| POST | /api/orders | Yes | Place order (DB transaction) |
+| GET | /api/orders | Yes | List orders (admin: all, user: own) |
+| GET | /api/orders/:id | Yes | Order details with items |
+| PUT | /api/orders/:id/status | Admin | Update order status |
+
+### Users
+| Method | Route | Auth | Description |
+|--------|-------|------|-------------|
+| GET | /api/users | Admin | List all users |
+| GET | /api/users/:id | Admin | Single user |
+| PUT | /api/users/:id | Admin | Update user role/name |
+| DELETE | /api/users/:id | Admin | Delete user (not self) |
+| GET | /api/users/stats/overview | Admin | Dashboard statistics |
+
+---
+
+## Data Models
+
+```typescript
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;       // Electronics, Clothing, Books, Home
+  rating: number;          // 0-5
+  stock: number;
+  disabled?: boolean;      // Hidden from storefront when true
+}
+
+interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'user' | 'admin';
+}
+
+interface Order {
+  id: number;
+  user_id: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  total: number;
+  shipping_address: string;
+  items?: OrderItem[];
+}
+```
+
+---
+
+## Design System
+
+CSS custom properties define the visual language globally in `src/styles.css`:
+
+| Variable | Value | Usage |
+|----------|-------|-------|
+| `--primary` | #2B3D5A | Navbar, buttons, links |
+| `--accent` | #e07a5f | CTA buttons, badges |
+| `--success` | #81b29a | Stock indicators, success alerts |
+| `--danger` | #e63946 | Delete buttons, error states |
+| `--bg` | #f5f5f7 | Page background |
+| `--shadow` | 0 2px 8px rgba(0,0,0,0.08) | Cards at rest |
+| `--shadow-hover` | 0 8px 24px rgba(0,0,0,0.12) | Cards on hover |
+| `--radius` | 12px | Cards, containers |
+| `--transition` | cubic-bezier(0.23, 1, 0.32, 1) | All animations |
+
+---
+
+## Security
+
+| Measure | Implementation |
+|---------|---------------|
+| Credentials not in repo | `credentials.local.ts` is in `.gitignore` |
+| Environment files excluded | `.env` and `.env.*` are in `.gitignore` |
+| Password hashing | bcryptjs with 10 salt rounds (backend) |
+| JWT expiration | Tokens expire after 7 days |
+| Route guards | `authGuard` + `adminGuard` protect admin routes |
+| Admin UI hidden | Navbar admin link only renders for admin role |
+| Interceptor | Auto-attaches token; no manual header management |
+
+---
+
+## Roadmap
+
+- [ ] Register component (UI + form validation)
+- [ ] Admin dashboard with statistics cards and charts
+- [ ] Admin orders management (table, status updates)
+- [ ] Admin users management (role changes, delete)
+- [ ] User profile page and order history
+- [ ] Product reviews and ratings
+- [ ] Real payment integration (Stripe)
+- [ ] Image upload for products
+- [ ] Email notifications (order confirmation)
+- [ ] Docker containerization
+- [ ] CI/CD pipeline
+- [ ] Production deployment
+
+---
+
+## Running the Backend (Optional)
+
+The frontend works standalone with in-memory data. To use the real backend:
+
+```bash
+# Set up PostgreSQL and create .env
+cd backend
+cp .env.example .env
+# Edit .env with your DATABASE_URL and JWT_SECRET
+
+# Install and run
+npm install
+node server.js
+
+# Backend runs on http://localhost:3000
+```
+
+---
+
+*Last updated: February 2025*
