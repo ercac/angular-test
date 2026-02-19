@@ -43,19 +43,23 @@ export interface AuthResponse {
   user: User;
 }
 
-/** Represents an order */
+/** Represents an order with full cost breakdown */
 export interface Order {
   id: number;
+  orderNumber: string;            // Formatted: "ORD-10001"
   user_id: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
+  subtotal: number;               // Sum of (price × qty)
+  tax: number;                    // Tax amount
+  fees: number;                   // Shipping / processing fees
+  total: number;                  // subtotal + tax + fees
   shipping_address: string;
   created_at: string;
-  // Joined from users table (admin view)
+  // Customer info (joined from users table in admin view)
   email?: string;
   first_name?: string;
   last_name?: string;
-  // Included in detail view
+  // Line items
   items?: OrderItem[];
 }
 
@@ -72,6 +76,19 @@ export interface OrderItem {
   category?: string;
 }
 
+/** Represents a user visible in the admin panel */
+export interface AdminUser {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'user' | 'admin';
+  status: 'active' | 'suspended';
+  registeredAt: string;           // ISO date string
+  orderCount: number;
+  totalSpent: number;
+}
+
 /** Dashboard statistics for admin */
 export interface DashboardStats {
   totalUsers: number;
@@ -86,4 +103,20 @@ export interface ProductResponse {
   total: number;
   page: number;
   totalPages: number;
+}
+
+/** User profile with saved shipping and payment preferences */
+export interface UserProfile {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  shippingAddress: string;
+  shippingCity: string;
+  shippingState: string;
+  shippingZip: string;
+  cardName: string;
+  cardNumber: string;
+  cardExpiry: string;
+  cardCvv: string;
 }

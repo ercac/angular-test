@@ -69,6 +69,12 @@
         }
       </a>
       @if (authService.isLoggedIn()) {
+        <a routerLink="/settings"
+           routerLinkActive="active"
+           class="settings-link"
+           (click)="mobileMenuOpen = false">
+          Settings
+        </a>
         <button class="auth-btn logout-btn" (click)="logout()">Logout</button>
       } @else {
         <a routerLink="/login" routerLinkActive="active" class="auth-btn" (click)="mobileMenuOpen = false">Login</a>

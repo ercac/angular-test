@@ -8,6 +8,6 @@
 <app-navbar></app-navbar>
 
 <!-- Dynamic page content area -->
-<main class="main-content">
+<main class="main-content" [class.admin-active]="isAdminRoute">
   <router-outlet></router-outlet>
 </main>

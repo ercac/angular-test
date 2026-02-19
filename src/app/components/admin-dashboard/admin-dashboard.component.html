@@ -1,1 +1,175 @@
-<p>admin-dashboard works!</p>
+<div class="dashboard">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Overview of your store's performance</p>
+  </div>
+
+  <!-- ── Stat Cards (row 1: products & inventory) ────────────── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue">📦</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalProducts }}</span>
+        <span class="stat-label">Total Products</span>
+        <span class="stat-detail">{{ activeProducts }} active, {{ disabledProducts }} disabled</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon green">💰</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalRevenue | currency }}</span>
+        <span class="stat-label">Total Revenue</span>
+        <span class="stat-detail">{{ totalOrders }} order{{ totalOrders !== 1 ? 's' : '' }} placed</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon purple">👥</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalUsers }}</span>
+        <span class="stat-label">Registered Users</span>
+        <span class="stat-detail">{{ activeUsers }} active</span>
+      </div>
+    </div>
+
+    <div class="stat-card" [class.stat-warning]="lowStockCount > 0">
+      <div class="stat-icon red">⚠️</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ lowStockCount }}</span>
+        <span class="stat-label">Low Stock Alerts</span>
+        <span class="stat-detail">Fewer than 5 units</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Content Grid ───────────────────────────────────── -->
+  <div class="content-grid">
+
+    <!-- Recent Orders -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Recent Orders</h2>
+        <a routerLink="/admin/orders" class="card-link">View all</a>
+      </div>
+      <div class="card-body">
+        @for (order of recentOrders; track order.id) {
+          <div class="order-row-dash">
+            <div class="order-row-left">
+              <span class="order-num">{{ order.orderNumber }}</span>
+              <span class="order-customer">{{ order.first_name }} {{ order.last_name }}</span>
+            </div>
+            <div class="order-row-right">
+              <span class="order-total-dash">{{ order.total | currency }}</span>
+              <span class="status-badge-sm" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+              <span class="order-date-dash">{{ formatDate(order.created_at) }}</span>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-text">No orders yet.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Categories</h2>
+        <span class="badge">{{ totalCategories }}</span>
+      </div>
+      <div class="card-body">
+        @for (cat of categoryBreakdown; track cat.name) {
+          <div class="category-row">
+            <div class="category-info">
+              <span class="category-emoji">{{ getCategoryEmoji(cat.name) }}</span>
+              <div>
+                <span class="category-name">{{ cat.name }}</span>
+                <span class="category-count">{{ cat.count }} product{{ cat.count !== 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+            <span class="category-revenue">{{ cat.revenue | currency }}</span>
+          </div>
+        } @empty {
+          <p class="empty-text">No categories yet.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Top Rated Products -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Top Rated</h2>
+        <a routerLink="/admin/products" class="card-link">View all</a>
+      </div>
+      <div class="card-body">
+        @for (product of topRatedProducts; track product.id) {
+          <div class="product-row">
+            <img [src]="product.image" [alt]="product.name" class="product-thumb" />
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-meta">{{ product.category }} &middot; {{ product.price | currency }}</span>
+            </div>
+            <span class="product-rating">⭐ {{ product.rating }}</span>
+          </div>
+        } @empty {
+          <p class="empty-text">No products yet.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Low Stock</h2>
+        @if (lowStockCount > 0) {
+          <span class="badge badge-warning">{{ lowStockCount }} alert{{ lowStockCount !== 1 ? 's' : '' }}</span>
+        } @else {
+          <span class="badge badge-success">All good</span>
+        }
+      </div>
+      <div class="card-body">
+        @for (product of lowStockProducts; track product.id) {
+          <div class="product-row">
+            <img [src]="product.image" [alt]="product.name" class="product-thumb" />
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-meta">{{ product.category }} &middot; {{ product.price | currency }}</span>
+            </div>
+            <span class="stock-badge low">{{ product.stock }} left</span>
+          </div>
+        } @empty {
+          <p class="empty-text">No low stock items. Looking good!</p>
+        }
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card full-width">
+      <div class="card-header">
+        <h2>Quick Actions</h2>
+      </div>
+      <div class="card-body actions-body">
+        <a routerLink="/admin/products/new" class="action-btn primary">
+          <span class="action-icon">➕</span>
+          <span>Add New Product</span>
+        </a>
+        <a routerLink="/admin/products" class="action-btn secondary">
+          <span class="action-icon">📋</span>
+          <span>Manage Products</span>
+        </a>
+        <a routerLink="/admin/orders" class="action-btn secondary">
+          <span class="action-icon">🧾</span>
+          <span>Manage Orders</span>
+        </a>
+        <a routerLink="/admin/users" class="action-btn secondary">
+          <span class="action-icon">👥</span>
+          <span>Manage Users</span>
+        </a>
+        <a routerLink="/" class="action-btn secondary">
+          <span class="action-icon">🏪</span>
+          <span>View Storefront</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

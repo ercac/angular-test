@@ -58,19 +58,47 @@ export class AuthService {
   }
 
   // ── Register ────────────────────────────────────────────────
+  // Checks if the email already exists in local accounts.
+  // If no backend is running, creates a local-only session.
   async register(data: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
   }): Promise<User> {
-    const response = await firstValueFrom(
-      this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, data)
+    // Check if email is already taken by a local account
+    const existing = LOCAL_ACCOUNTS.find(
+      a => a.email.toLowerCase() === data.email.toLowerCase()
     );
+    if (existing) {
+      throw { error: { error: 'An account with this email already exists.' } };
+    }
 
-    localStorage.setItem('token', response.token);
-    this.currentUserSignal.set(response.user);
-    return response.user;
+    // Try the real backend first
+    try {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, data)
+      );
+      localStorage.setItem('token', response.token);
+      this.currentUserSignal.set(response.user);
+      return response.user;
+    } catch (backendError: any) {
+      // If backend is unreachable, create a local-only session
+      if (backendError?.status === 0 || backendError?.status >= 500) {
+        const localUser: User = {
+          id: Date.now(),
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          role: 'user'
+        };
+        localStorage.setItem('token', `dev-fake-${localUser.email}`);
+        this.currentUserSignal.set(localUser);
+        return localUser;
+      }
+      // Backend returned a real error (e.g. 400 duplicate email)
+      throw backendError;
+    }
   }
 
   // ── Logout ──────────────────────────────────────────────────

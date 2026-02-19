@@ -22,6 +22,12 @@
     <div class="checkout-form-section">
       <h1>Checkout</h1>
 
+      @if (profileAutoFilled) {
+        <div class="autofill-banner">
+          Auto-filled from your <a routerLink="/settings">saved profile</a>.
+        </div>
+      }
+
       <!--
         [formGroup] binds this <form> to our checkoutForm FormGroup.
         (ngSubmit) calls onSubmit() when the form is submitted.
