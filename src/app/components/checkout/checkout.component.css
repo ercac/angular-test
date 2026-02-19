@@ -118,6 +118,24 @@ legend {
   border-color: var(--success, #81b29a);
 }
 
+/* ── Auto-fill Banner ────────────────────────────────────── */
+
+.autofill-banner {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #a7f3d0;
+}
+
+.autofill-banner a {
+  color: #065f46;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* ── Payment Note ─────────────────────────────────────────── */
 
 .payment-note {

@@ -30,6 +30,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../services/cart.service';
+import { UserProfileService } from '../../services/user-profile.service';
 
 @Component({
   selector: 'app-checkout',
@@ -43,11 +44,13 @@ export class CheckoutComponent implements OnInit {
 
   checkoutForm!: FormGroup;  // The main form group
   orderPlaced: boolean = false;  // Shows success message after order
+  profileAutoFilled: boolean = false;  // Shows auto-fill banner
 
   constructor(
     private fb: FormBuilder,    // FormBuilder for easier form creation
     public cartService: CartService,
-    private router: Router
+    private router: Router,
+    private userProfileService: UserProfileService
   ) {}
 
   ngOnInit(): void {
@@ -100,6 +103,29 @@ export class CheckoutComponent implements OnInit {
         Validators.pattern(/^\d{3}$/)  // Exactly 3 digits
       ]]
     });
+
+    // ── Auto-fill from saved profile ────────────────────────────
+    // If the user has a saved profile (from Settings page), map
+    // its fields onto the checkout form using patchValue().
+    // The profile field names differ slightly from checkout fields,
+    // so we map them explicitly.
+    const profile = this.userProfileService.profile();
+    if (profile) {
+      this.checkoutForm.patchValue({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+        address: profile.shippingAddress,
+        city: profile.shippingCity,
+        state: profile.shippingState,
+        zipCode: profile.shippingZip,
+        cardName: profile.cardName,
+        cardNumber: profile.cardNumber,
+        expiry: profile.cardExpiry,
+        cvv: profile.cardCvv
+      });
+      this.profileAutoFilled = true;
+    }
   }
 
   /**

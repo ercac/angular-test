@@ -1,1 +1,202 @@
-<p>admin-users works!</p>
+<!-- ============================================================ -->
+<!-- ADMIN USERS — User account management                       -->
+<!-- Shows registered emails, names, roles, and account status.  -->
+<!-- Expandable detail view shows address (no payment data).     -->
+<!-- ============================================================ -->
+
+<div class="admin-users">
+  <div class="page-header">
+    <h1>User Accounts</h1>
+    <span class="user-count">{{ filteredUsers.length }} of {{ totalUsers }} users</span>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <!-- ── Quick Stats ──────────────────────────────────────── -->
+  <div class="user-stats">
+    <div class="mini-stat">
+      <span class="mini-stat-value">{{ totalUsers }}</span>
+      <span class="mini-stat-label">Total Users</span>
+    </div>
+    <div class="mini-stat">
+      <span class="mini-stat-value">{{ activeUsers }}</span>
+      <span class="mini-stat-label">Active</span>
+    </div>
+    <div class="mini-stat">
+      <span class="mini-stat-value">{{ totalUsers - activeUsers }}</span>
+      <span class="mini-stat-label">Suspended</span>
+    </div>
+    <div class="mini-stat">
+      <span class="mini-stat-value">{{ adminCount }}</span>
+      <span class="mini-stat-label">Admins</span>
+    </div>
+  </div>
+
+  <!-- ── Search & Filter Toolbar ──────────────────────────── -->
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name or email..."
+      [(ngModel)]="searchTerm"
+      (input)="applyFilter()"
+    />
+    <select
+      class="role-select"
+      [(ngModel)]="roleFilter"
+      (change)="applyFilter()"
+    >
+      <option value="all">All Roles</option>
+      <option value="admin">Admins</option>
+      <option value="user">Users</option>
+    </select>
+  </div>
+
+  <!-- ── Users Table ──────────────────────────────────────── -->
+  @if (loading) {
+    <div class="loading">Loading users...</div>
+  } @else if (filteredUsers.length === 0) {
+    <div class="empty-state">
+      <p>No users found matching your search.</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Registered</th>
+            <th>Orders</th>
+            <th>Spent</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers; track user.id) {
+            <!-- Main row (clickable) -->
+            <tr
+              class="user-row"
+              [class.expanded]="expandedUserId === user.id"
+              [class.suspended-row]="user.status === 'suspended'"
+              (click)="toggleExpand(user.id)"
+            >
+              <td class="cell-id">{{ user.id }}</td>
+              <td class="cell-name">
+                {{ user.firstName }} {{ user.lastName }}
+              </td>
+              <td class="cell-email">{{ user.email }}</td>
+              <td>
+                <span class="role-badge" [ngClass]="getRoleClass(user.role)">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td class="cell-date">{{ formatDate(user.registeredAt) }}</td>
+              <td class="cell-orders">{{ user.orderCount }}</td>
+              <td class="cell-spent">{{ user.totalSpent | currency }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(user.status)">
+                  {{ user.status }}
+                </span>
+              </td>
+            </tr>
+
+            <!-- Expanded detail row -->
+            @if (expandedUserId === user.id) {
+              <tr class="detail-row">
+                <td colspan="8">
+                  <div class="user-detail">
+
+                    <!-- Account Info -->
+                    <div class="detail-section">
+                      <h3>Account Information</h3>
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="info-label">Full Name</span>
+                          <span class="info-value">{{ user.firstName }} {{ user.lastName }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Email</span>
+                          <span class="info-value">{{ user.email }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Role</span>
+                          <span class="info-value">{{ user.role | titlecase }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Member Since</span>
+                          <span class="info-value">{{ formatDate(user.registeredAt) }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Total Orders</span>
+                          <span class="info-value">{{ user.orderCount }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="info-label">Total Spent</span>
+                          <span class="info-value">{{ user.totalSpent | currency }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Shipping Address (from saved profile) -->
+                    <div class="detail-section">
+                      <h3>Shipping Address</h3>
+                      @if (getUserProfile(user.id); as profile) {
+                        <div class="info-grid">
+                          <div class="info-item full-width">
+                            <span class="info-label">Street</span>
+                            <span class="info-value">{{ profile.shippingAddress || 'Not provided' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="info-label">City</span>
+                            <span class="info-value">{{ profile.shippingCity || 'N/A' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="info-label">State</span>
+                            <span class="info-value">{{ profile.shippingState || 'N/A' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="info-label">ZIP</span>
+                            <span class="info-value">{{ profile.shippingZip || 'N/A' }}</span>
+                          </div>
+                        </div>
+                      } @else {
+                        <p class="no-data">No shipping address on file.</p>
+                      }
+                    </div>
+
+                    <!-- Privacy Notice + Actions -->
+                    <div class="detail-section">
+                      <h3>Account Actions</h3>
+                      <div class="privacy-notice">
+                        <span class="privacy-icon">🔒</span>
+                        Payment information is private and not accessible from the admin panel.
+                      </div>
+                      @if (isSelf(user.id)) {
+                        <p class="self-notice">This is your account — status changes are disabled.</p>
+                      } @else {
+                        <div class="action-buttons">
+                          <button
+                            class="btn btn-sm"
+                            [ngClass]="user.status === 'active' ? 'btn-warning' : 'btn-success'"
+                            (click)="toggleStatus(user); $event.stopPropagation()"
+                          >
+                            {{ user.status === 'active' ? 'Suspend Account' : 'Reactivate Account' }}
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

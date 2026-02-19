@@ -7,6 +7,7 @@ import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { SettingsComponent } from './components/settings/settings.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AdminProductsComponent } from './components/admin-products/admin-products.component';
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
 
   // Admin routes — protected by auth + admin guards
   {

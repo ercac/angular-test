@@ -14,3 +14,10 @@
   margin: 0 auto;
   box-sizing: border-box;
 }
+
+/* Admin pages need full viewport width for the sidebar layout */
+.main-content.admin-active {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}

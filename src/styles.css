@@ -168,9 +168,23 @@ app-product-list,
 app-product-detail,
 app-cart,
 app-checkout,
+app-login,
+app-register,
+app-settings,
 app-admin {
   display: block;
   animation: fadeIn 0.3s ease-out;
+}
+
+/* ── Admin Layout Override ────────────────────────────────── */
+/* The admin layout needs full-width to display its sidebar.  */
+/* This removes the max-width and padding from main-content   */
+/* when the admin component is active.                        */
+
+.main-content:has(app-admin) {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 /* ── Selection Color ──────────────────────────────────────── */

@@ -11,7 +11,7 @@
 |------|------|---------------|
 | 1 | Feb 2025 | Project scaffolding, product browsing, cart system, checkout flow |
 | 2 | Feb 2025 | Admin panel (product CRUD, disable/enable), fake login system, local credentials |
-| 3 | | |
+| 3 | Feb 2025 | Register component with form validation, admin dashboard with stats/charts |
 | 4 | | |
 | 5 | | |
 | 6 | | |
@@ -337,8 +337,8 @@ CSS custom properties define the visual language globally in `src/styles.css`:
 
 ## Roadmap
 
-- [ ] Register component (UI + form validation)
-- [ ] Admin dashboard with statistics cards and charts
+- [x] Register component (UI + form validation)
+- [x] Admin dashboard with statistics cards and charts
 - [ ] Admin orders management (table, status updates)
 - [ ] Admin users management (role changes, delete)
 - [ ] User profile page and order history

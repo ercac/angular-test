@@ -1,0 +1,160 @@
+<!-- ============================================================ -->
+<!-- USER SETTINGS PAGE                                          -->
+<!-- Pre-fills from saved profile; saves to localStorage.        -->
+<!-- Payment fields are optional so users can skip them.         -->
+<!-- ============================================================ -->
+
+<div class="settings-page">
+  <div class="settings-card">
+
+    <div class="settings-header">
+      <h1>Account Settings</h1>
+      <p>Manage your personal info, shipping address, and payment details.</p>
+    </div>
+
+    <!-- Success Banner -->
+    @if (saved) {
+      <div class="success-banner">
+        <span class="success-icon">✓</span>
+        Profile saved successfully!
+      </div>
+    }
+
+    <form [formGroup]="settingsForm" (ngSubmit)="onSave()">
+
+      <!-- ── Personal Information ──────────────────────────── -->
+      <fieldset>
+        <legend>Personal Information</legend>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input id="firstName" formControlName="firstName" type="text" placeholder="John" />
+            @if (f['firstName'].touched && f['firstName'].errors) {
+              <span class="error">
+                @if (f['firstName'].errors['required']) { First name is required. }
+                @if (f['firstName'].errors['minlength']) { Minimum 2 characters. }
+              </span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input id="lastName" formControlName="lastName" type="text" placeholder="Doe" />
+            @if (f['lastName'].touched && f['lastName'].errors) {
+              <span class="error">
+                @if (f['lastName'].errors['required']) { Last name is required. }
+                @if (f['lastName'].errors['minlength']) { Minimum 2 characters. }
+              </span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" formControlName="email" type="email" placeholder="john@example.com" />
+          @if (f['email'].touched && f['email'].errors) {
+            <span class="error">
+              @if (f['email'].errors['required']) { Email is required. }
+              @if (f['email'].errors['email']) { Please enter a valid email. }
+            </span>
+          }
+        </div>
+      </fieldset>
+
+      <!-- ── Shipping Address ──────────────────────────────── -->
+      <fieldset>
+        <legend>Shipping Address</legend>
+
+        <div class="form-group">
+          <label for="shippingAddress">Street Address</label>
+          <input id="shippingAddress" formControlName="shippingAddress" type="text" placeholder="123 Main St" />
+          @if (f['shippingAddress'].touched && f['shippingAddress'].errors) {
+            <span class="error">Address is required.</span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="shippingCity">City</label>
+            <input id="shippingCity" formControlName="shippingCity" type="text" placeholder="San Francisco" />
+            @if (f['shippingCity'].touched && f['shippingCity'].errors) {
+              <span class="error">City is required.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="shippingState">State</label>
+            <input id="shippingState" formControlName="shippingState" type="text" placeholder="CA" />
+            @if (f['shippingState'].touched && f['shippingState'].errors) {
+              <span class="error">State is required.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="shippingZip">ZIP Code</label>
+            <input id="shippingZip" formControlName="shippingZip" type="text" placeholder="94102" />
+            @if (f['shippingZip'].touched && f['shippingZip'].errors) {
+              <span class="error">
+                @if (f['shippingZip'].errors['required']) { ZIP code is required. }
+                @if (f['shippingZip'].errors['pattern']) { Must be 5 digits. }
+              </span>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── Payment Details (Optional) ────────────────────── -->
+      <fieldset>
+        <legend>Payment Details <span class="optional-tag">Optional</span></legend>
+        <p class="payment-note">
+          Save your card details for faster checkout. This is a demo — no real charges.
+        </p>
+
+        <div class="form-group">
+          <label for="cardName">Name on Card</label>
+          <input id="cardName" formControlName="cardName" type="text" placeholder="John Doe" />
+        </div>
+
+        <div class="form-group">
+          <label for="cardNumber">Card Number</label>
+          <input id="cardNumber" formControlName="cardNumber" type="text" placeholder="4111111111111111" />
+          @if (f['cardNumber'].touched && f['cardNumber'].errors) {
+            <span class="error">
+              @if (f['cardNumber'].errors['pattern']) { Must be 16 digits. }
+            </span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cardExpiry">Expiry Date</label>
+            <input id="cardExpiry" formControlName="cardExpiry" type="text" placeholder="MM/YY" />
+            @if (f['cardExpiry'].touched && f['cardExpiry'].errors) {
+              <span class="error">
+                @if (f['cardExpiry'].errors['pattern']) { Use MM/YY format. }
+              </span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="cardCvv">CVV</label>
+            <input id="cardCvv" formControlName="cardCvv" type="text" placeholder="123" />
+            @if (f['cardCvv'].touched && f['cardCvv'].errors) {
+              <span class="error">
+                @if (f['cardCvv'].errors['pattern']) { Must be 3 digits. }
+              </span>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── Actions ───────────────────────────────────────── -->
+      <div class="form-actions">
+        <button type="submit" class="btn-save">Save Settings</button>
+        <a routerLink="/" class="btn-cancel">Cancel</a>
+      </div>
+
+    </form>
+  </div>
+</div>
